@@ -1,12 +1,12 @@
 #pragma once 
 
 
-#include "drlt.h"
 #include <iostream>
 #include <boost/log/trivial.hpp>
 #include <string>
 #include <unordered_map>
-#include <queue>
+#include <deque>
+#include <vector>
 
 #include <boost/filesystem.hpp>
 
@@ -45,9 +45,10 @@ class dir_layout_copier_c{
 
     private:
         bool _do_compress();
-        bool _import_dir_layout();
+        bool _restore_dir_layout();
         int _capture_dir_layout();
         bool _save_file_info(directory_entry &dentry);
+        bool _restore_entry(string line, std::vector<string> &retry_list);
 
         // https://theboostcpplibraries.com/boost.iostreams-filters
         boost::iostreams::filtering_ostream _out;
@@ -56,7 +57,10 @@ class dir_layout_copier_c{
         std::unordered_map<string, string> * _args;
 
         bool _is_scan_mode = false;
-        bool _is_import_mode = false;
+        bool _is_restore_mode = false;
         bool _is_verbose = false;
         bool _is_compress = false;
+        bool _is_progress = false;
+        size_t _dnum{0};
+        size_t _fnum{0};
 };

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 
-project(drlt)
+project(dir_layout)
 file(GLOB_RECURSE SOURCE_FILES
         "*.h"
         "*.c"
@@ -30,7 +30,7 @@ include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIRS})
 
 
-add_executable(drlt ${SOURCE_FILES})
-target_link_libraries(drlt ${Boost_LIBRARIES})
-target_link_libraries(drlt ZLIB::ZLIB)
+add_executable(dir_layout ${SOURCE_FILES})
+target_link_libraries(dir_layout ${Boost_LIBRARIES})
+target_link_libraries(dir_layout ZLIB::ZLIB)
 
