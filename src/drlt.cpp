@@ -138,8 +138,8 @@ bool dir_layout_copier_c::init(int argc, char** argv)
         {
             if (_is_compress)
                 _out.push(boost::iostreams::gzip_compressor());
- 
-            _out.push(boost::iostreams::file_sink(_file));
+
+            _out.push(boost::iostreams::file_sink(_file, std::ofstream::binary));
         }
 
 	}
@@ -204,7 +204,7 @@ bool dir_layout_copier_c::_save_file_info(directory_entry& dentry)
 
     catch (const filesystem_error& ex)
     {
-        BOOST_LOG_TRIVIAL(trace) << "\r" << ex.what();
+        BOOST_LOG_TRIVIAL(trace) << ex.what();
         return false;
     }
 
@@ -212,7 +212,7 @@ bool dir_layout_copier_c::_save_file_info(directory_entry& dentry)
         cout << out_str << endl;
 
     _out << out_str << endl;
-    _out.flush();
+    //_out.flush();
 
     return true;
 }
@@ -369,8 +369,13 @@ bool dir_layout_copier_c::_restore_dir_layout()
             line[2] = '/';
         }
 
-        _restore_entry(_target_dir + string("/") + line, retry_list); //prefix path iwith restore dir path
-
+#ifdef _WIN32
+        string sep{"\\"};
+#else
+        string sep{ "/" };
+#endif
+        _restore_entry(_target_dir + sep + line, retry_list); //prefix path iwith restore dir path
+        line.clear();
 
         //TBD : show restore progress % 
     }
@@ -467,8 +472,11 @@ int dir_layout_copier_c::_capture_dir_layout()
 
 dir_layout_copier_c::~dir_layout_copier_c() {
 
-    if (_is_compress && _is_scan_mode && _out.size())
+    if (_is_compress && _is_scan_mode && _out.size()) {
+        _out.flush();
         _out.pop();
+        _out.pop();
+    }
 
     if (_pdesc)
         delete(_pdesc);
