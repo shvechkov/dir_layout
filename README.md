@@ -28,18 +28,19 @@ To recreate captured layout:
 ### Building on Unix/Linux  
 Install boost libraries "sudo apt install libboost-all-dev"
 
+```
 mkdir build && cd build
 cmake  ../src/ -DCMAKE_BUILD_TYPE=Debug
 make 
-
+```
 ### Building on Windows 
 Donwload boost (https://www.boost.org/) and compile with zlib enabled.
 E.g: 
-
+```
 .\bootstrap.bat
 .\b2 -j15 --toolset=msvc --build-type=complete stage -s \ 
     ZLIB_SOURCE="C:\zlib-1.2.8" -s ZLIB_INCLUDE="C:\zlib-1.2.8" 
-
+```
 
 If needed, adjust path to boost includes and libs in dir_layout VS project 
 (created in VS2022)
