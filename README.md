@@ -7,7 +7,7 @@ structure and files. The actual file's data is not re-created - we truncate
 files to originaslsize and set permissions and attributes ) 
 
 ```
-Usage: dir_layout [--help | [ [--scan <path>] | [--restore <path> ] [--file <path>] [--compress] [--verbose] [--progress]] ]
+Usage: dir_layout [--help|[[--scan <path>]|[--restore <path>][--file <path>][--compress][--verbose][--progress]]]
 Allowed options:
   --help                produce help message
   --scan arg            scans directory <arg> for it's layout/contents
@@ -27,15 +27,14 @@ To recreate captured layout:
 
 ### Building on Unix/Linux  
 Install boost libraries "sudo apt install libboost-all-dev"
-
 ```
 mkdir build && cd build
 cmake  ../src/ -DCMAKE_BUILD_TYPE=Debug
 make 
 ```
 ### Building on Windows 
-Donwload boost (https://www.boost.org/) and compile with zlib enabled.
-E.g: 
+Download boost (https://www.boost.org/) and zlib(https://gnuwin32.sourceforge.net/packages/zlib.htm) and compile 
+boost with zlib enabled. E.g: 
 ```
 .\bootstrap.bat
 .\b2 -j15 --toolset=msvc --build-type=complete stage -s \ 
