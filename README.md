@@ -4,7 +4,7 @@ purposes. It recursevely scans dir/file structure(layout) and saves into
 intermediate file (can be compressed). Then it allows to restore same layout
 on another env for testing purposes ( i.e. re-creates same directory 
 structure and files. The actual file's data is not re-created - we truncate 
-files to originaslsize and set permissions and attributes ) 
+files to original size and set permissions and attributes ) 
 
 ```
 Usage: dir_layout [--help|[[--scan <path>]|[--restore <path>][--file <path>][--compress][--verbose][--progress]]]
