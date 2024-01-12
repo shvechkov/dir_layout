@@ -23,28 +23,27 @@
 
 #include <boost/iostreams/filter/zlib.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
-
+#include <boost/program_options.hpp>
 
 using std::string;
 using std::unordered_map;
 using namespace boost::filesystem;
 using boost::filesystem::directory_entry;
-
+namespace po = boost::program_options;
 
 class dir_layout_copier_c{
 
     public:
-        dir_layout_copier_c():_args(nullptr){}
+        dir_layout_copier_c(){ _pdesc = new po::options_description("Allowed options"); }
 
         virtual ~dir_layout_copier_c();
 
         bool init(int argc, char **argv);
 
-        static int usage();
         int run();
 
     private:
-        bool _do_compress();
+        void _usage();
         bool _restore_dir_layout();
         int _capture_dir_layout();
         bool _save_file_info(directory_entry &dentry);
@@ -54,8 +53,6 @@ class dir_layout_copier_c{
         boost::iostreams::filtering_ostream _out;
 
         
-        std::unordered_map<string, string> * _args;
-
         bool _is_scan_mode = false;
         bool _is_restore_mode = false;
         bool _is_verbose = false;
@@ -63,4 +60,8 @@ class dir_layout_copier_c{
         bool _is_progress = false;
         size_t _dnum{0};
         size_t _fnum{0};
+        string _target_dir;
+        string _file;
+
+        po::options_description  *_pdesc;
 };
