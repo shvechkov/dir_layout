@@ -6,6 +6,7 @@ on another env for testing purposes ( i.e. re-creates same directory
 structure and files. The actual file's data is not re-created - we truncate 
 files to originaslsize and set permissions and attributes ) 
 
+```
 Usage: dir_layout [--help | [ [--scan <path>] | [--restore <path> ] [--file <path>] [--compress] [--verbose] [--progress]] ]
 Allowed options:
   --help                produce help message
@@ -22,6 +23,7 @@ To capture dir layout of /tmp/source:
 
 To recreate captured layout:
 ./dir_layout --restore /tmp/restore --file contents.gz --verbose 
+```
 
 ### Building on Unix/Linux  
 Install boost libraries "sudo apt install libboost-all-dev"
