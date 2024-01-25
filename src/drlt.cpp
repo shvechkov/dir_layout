@@ -41,6 +41,7 @@ using std::string;
 using std::unordered_map;
 using std::cerr;
 using std::exception;
+
 namespace po = boost::program_options;
 using namespace boost::filesystem;
 
@@ -55,13 +56,14 @@ namespace def
     const string cmd_restore = string("restore");
     const string cmd_verbose = string("verbose");
     const string cmd_progress = string("progress");
+    const string cmd_anonymize = string("anonymize");
 
     const char FD = '\t';
 }
 
 void dir_layout_copier_c::_usage()
 {
-    cout << "Usage: dir_layout [--help | [ [--scan <path>] | [--restore <path> ] [--file <path>] [--compress] [--verbose] [--progress]]" << endl;
+    cout << "Usage: dir_layout [--help | [ [--scan <path>] | [--restore <path> ] [--file <path>] [--compress] [--verbose] [--progress] [--anonymize]]" << endl;
 
     cout << *_pdesc << "\n";
     return;
@@ -76,6 +78,7 @@ bool dir_layout_copier_c::init(int argc, char** argv)
             ("compress", "gzip/compress scan output file")
             ("verbose", "noisy output")
             ("progress", "report some stats")
+            ("anonymize", "anonymize dir/file names")
             ("file", po::value<string>(), "input/output file for dir layout")
             ("restore", po::value<string>(), "restore layout under specified directory");
 
@@ -95,6 +98,11 @@ bool dir_layout_copier_c::init(int argc, char** argv)
 
         if (vm.count(def::cmd_compress))
             _is_compress = true;
+
+        if (vm.count(def::cmd_anonymize))
+            _is_anonymize = true;
+
+
 
         if (vm.count(def::cmd_progress))
             _is_progress = true;
@@ -158,7 +166,7 @@ bool dir_layout_copier_c::init(int argc, char** argv)
 
 
 
-bool dir_layout_copier_c::_save_file_info(directory_entry& dentry)
+bool dir_layout_copier_c::_save_file_info(directory_entry& dentry, pair<string,string> * anon=nullptr)
 {
 
     auto fstat = dentry.status();
@@ -168,8 +176,15 @@ bool dir_layout_copier_c::_save_file_info(directory_entry& dentry)
     try
     {
 
-
-        out_str += dentry.path().string();
+        //anon.first - parent dir anonimized name; 
+        //return new anonymized file/dir name component in anon.second
+        if (_is_anonymize && anon){
+            anon->second = anon->first + dentry.path().separator + anon->second + (is_directory(dentry) ? std::to_string(_dnum) : std::to_string(_fnum));
+            out_str += anon->second;             
+        }
+        else
+            out_str += dentry.path().string();
+        
         out_str += def::FD;
 
         if (is_symlink(dentry))
@@ -402,9 +417,11 @@ int dir_layout_copier_c::_capture_dir_layout()
 
 
     path p(_target_dir);
-    deque<path> dq;
+    
+    deque<pair<path,string>> dq;
 
-    dq.push_front(p);
+
+    dq.push_front(pair<path,string>(p,"ROOT_DIR"));
 
     while (dq.size())
     {
@@ -412,38 +429,42 @@ int dir_layout_copier_c::_capture_dir_layout()
         try
         {
 
-            path p = dq.front();
+            pair<path,string> p = dq.front();
             dq.pop_front();
 
-            if (!exists(p)) {
-                BOOST_LOG_TRIVIAL(warning) << p << "does not exist\n";
+            if (!exists(p.first)) {
+                BOOST_LOG_TRIVIAL(warning) << p.first << "does not exist\n";
                 continue;
             }
 
-            auto dentry = directory_entry(p);
-            _save_file_info(dentry);
+            auto dentry = directory_entry(p.first);
+            pair<string,string> anon(p.second,"");
+            _save_file_info(dentry,&anon);
 
-            if (is_directory(p))
+            if (is_directory(p.first))
             {
 
-                for (directory_entry& x : directory_iterator(p))
+                for (directory_entry& x : directory_iterator(p.first))
                 {
                     try
                     {
                         if (is_directory(x))
-                            dq.push_front(x);
+                            dq.push_front(pair<path,string>(x,anon.second));
                         else
                         {
 
                             // add link target into dir layout first
                             // so that during restore link could be created to restored target
-                            if (is_symlink(x.symlink_status()))
+
+                            //TBD - add links support for anonymized mode ...
+                            if (is_symlink(x.symlink_status()) && !_is_anonymize)
                             {
                                 directory_entry link_target = directory_entry(read_symlink(x.path()));
                                 _save_file_info(link_target);
                             }
 
-                            _save_file_info(x);
+                            pair<string,string> a(p.second,"");
+                            _save_file_info(x,&a);
                         }
                     }
                     catch (const filesystem_error& ex)
