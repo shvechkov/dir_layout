@@ -179,7 +179,9 @@ bool dir_layout_copier_c::_save_file_info(directory_entry& dentry, pair<string,s
         //anon.first - parent dir anonimized name; 
         //return new anonymized file/dir name component in anon.second
         if (_is_anonymize && anon){
-            anon->second = anon->first + dentry.path().separator + anon->second + (is_directory(dentry) ? std::to_string(_dnum) : std::to_string(_fnum));
+            anon->second = anon->first;
+            anon->second += dentry.path().separator;
+            anon->second += (is_directory(dentry) ? std::to_string(_dnum) : std::to_string(_fnum));
             out_str += anon->second;             
         }
         else
