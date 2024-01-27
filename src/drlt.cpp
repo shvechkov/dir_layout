@@ -31,7 +31,7 @@
 #else
 #endif
 
-#define BOOST_LOG_DYN_LINK 1
+// #define BOOST_LOG_DYN_LINK 1
 
 using boost::filesystem::directory_entry;
 using std::cout;
@@ -40,7 +40,6 @@ using std::pair;
 using std::deque;
 using std::string;
 using std::unordered_map;
-using std::cerr;
 using std::exception;
 
 namespace po = boost::program_options;
@@ -153,11 +152,11 @@ bool dir_layout_copier_c::init(int argc, char** argv)
 
 	}
 	catch (exception& e) {
-		cerr << "error: " << e.what() << "\n";
+		BOOST_LOG_TRIVIAL(error) << e.what() << "\n";
 		return false;
 	}
 	catch (...) {
-		cerr << "Exception of unknown type!\n";
+		BOOST_LOG_TRIVIAL(error) << "Exception of unknown type!\n";
 		return false;
 	}
     
@@ -235,7 +234,7 @@ bool dir_layout_copier_c::_save_file_info(directory_entry& dentry, pair<string,s
     return true;
 }
 
-bool dir_layout_copier_c::_restore_entry(string line, std::vector<string>& retry_list) {
+bool dir_layout_copier_c::_restore_entry(string line) {
 
     auto iss = std::istringstream{ line };
     std::string tmp;
@@ -397,7 +396,6 @@ bool dir_layout_copier_c::_restore_dir_layout()
     std::string line;
     size_t bytes_read = 0;
 
-    std::vector<string> retry_list;
 
    
     size_t tick_num{0};
@@ -418,7 +416,7 @@ bool dir_layout_copier_c::_restore_dir_layout()
 #else
         string sep{ "/" };
 #endif
-        _restore_entry(_target_dir + sep + line, retry_list); //prefix path iwith restore dir path
+        _restore_entry(_target_dir + sep + line); //prefix path iwith restore dir path
         line.clear();
 
         //TBD : show restore progress % 
@@ -519,6 +517,11 @@ int dir_layout_copier_c::_capture_dir_layout()
 }
 
 
+dir_layout_copier_c::dir_layout_copier_c() {
+    _pdesc = new po::options_description("Allowed options");     
+    show_cursor(false); 
+}
+
 dir_layout_copier_c::~dir_layout_copier_c() {
 
     if (_is_compress && _is_scan_mode && _out.size()) {
@@ -535,6 +538,7 @@ dir_layout_copier_c::~dir_layout_copier_c() {
 }
 
 
+
 int dir_layout_copier_c::run() {
 
     if (_is_scan_mode)
@@ -543,8 +547,7 @@ int dir_layout_copier_c::run() {
     if (_is_restore_mode)
         return _restore_dir_layout();
 
-    //never reached 
-    assert(0);
+
     return 0;
 }
 

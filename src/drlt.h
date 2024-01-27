@@ -35,8 +35,7 @@ namespace po = boost::program_options;
 class dir_layout_copier_c{
 
     public:
-        dir_layout_copier_c() { _pdesc = new po::options_description("Allowed options");     show_cursor(false); }
-
+        dir_layout_copier_c();
         virtual ~dir_layout_copier_c();
 
         bool init(int argc, char **argv);
@@ -49,7 +48,7 @@ class dir_layout_copier_c{
         bool _restore_dir_layout();
         int _capture_dir_layout();
         bool _save_file_info(directory_entry& dentry, pair<string,string> *anon);
-        bool _restore_entry(string line, std::vector<string> &retry_list);
+        bool _restore_entry(string line);
 
         // https://theboostcpplibraries.com/boost.iostreams-filters
         boost::iostreams::filtering_ostream _out;
