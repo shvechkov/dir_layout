@@ -26,6 +26,7 @@
 #ifdef __linux__ 
 #include <netinet/in.h>
 #elif _WIN32
+#include <windows.h>
 #include <winsock.h>
 #else
 #endif
@@ -181,7 +182,7 @@ bool dir_layout_copier_c::_save_file_info(directory_entry& dentry, pair<string,s
         if (_is_anonymize && anon){
             anon->second = anon->first;
             anon->second += dentry.path().separator;
-            anon->second += (is_directory(dentry) ? std::to_string(_dnum) : std::to_string(_fnum));
+            anon->second += (is_directory(dentry) ? "d" + std::to_string(_dnum) : "f" + std::to_string(_fnum));
             out_str += anon->second;             
         }
         else
@@ -240,8 +241,7 @@ bool dir_layout_copier_c::_restore_entry(string line, std::vector<string>& retry
     std::string tmp;
 
     auto path = std::string{};
-    std::getline(iss, tmp, def::FD);
-    std::istringstream(tmp) >> path;
+    std::getline(iss, path, def::FD);
 
     int type{ 0 };
     std::getline(iss, tmp, def::FD);
@@ -333,6 +333,29 @@ bool dir_layout_copier_c::_restore_entry(string line, std::vector<string>& retry
     return true;
 }
 
+
+void dir_layout_copier_c::show_cursor(bool show)
+{
+#ifdef _WIN32
+    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_CURSOR_INFO     cursorInfo;
+
+    GetConsoleCursorInfo(out, &cursorInfo);
+    cursorInfo.bVisible = show; // set the cursor visibility
+    SetConsoleCursorInfo(out, &cursorInfo);
+#endif
+
+}
+
+
+
+void show_tick(size_t& tick_num) {
+    string t{ "-\\|/-\\|/" };
+    cout << "\r" << t[tick_num % 7] << "   ";
+}
+
+
 bool dir_layout_copier_c::_restore_dir_layout()
 {
 
@@ -375,6 +398,10 @@ bool dir_layout_copier_c::_restore_dir_layout()
     size_t bytes_read = 0;
 
     std::vector<string> retry_list;
+
+   
+    size_t tick_num{0};
+    size_t lines{0};
     while (in)
     {
         std::getline(in, line);
@@ -395,6 +422,12 @@ bool dir_layout_copier_c::_restore_dir_layout()
         line.clear();
 
         //TBD : show restore progress % 
+        if (!_is_verbose && _is_progress && !(lines % 250)) {
+            tick_num++;
+            show_tick(tick_num);
+        }
+        lines++;
+
     }
 
     ifs.close();
@@ -406,11 +439,6 @@ using namespace std;
 
 
 
-void show_tick(size_t& tick_num) {
-    string t{ "-\\|+/-\\|/" };
-    cout << t[tick_num % 8] << "\r";
-    tick_num++;
-}
 
 int dir_layout_copier_c::_capture_dir_layout()
 {
@@ -419,11 +447,9 @@ int dir_layout_copier_c::_capture_dir_layout()
 
 
     path p(_target_dir);
-    
     deque<pair<path,string>> dq;
 
-
-    dq.push_front(pair<path,string>(p,"ROOT_DIR"));
+    dq.push_front(pair<path,string>(p,""));
 
     while (dq.size())
     {
@@ -503,6 +529,8 @@ dir_layout_copier_c::~dir_layout_copier_c() {
 
     if (_pdesc)
         delete(_pdesc);
+
+    show_cursor(true);
 
 }
 

@@ -35,11 +35,12 @@ namespace po = boost::program_options;
 class dir_layout_copier_c{
 
     public:
-        dir_layout_copier_c(){ _pdesc = new po::options_description("Allowed options"); }
+        dir_layout_copier_c() { _pdesc = new po::options_description("Allowed options");     show_cursor(false); }
 
         virtual ~dir_layout_copier_c();
 
         bool init(int argc, char **argv);
+        void show_cursor(bool show);
 
         int run();
 
