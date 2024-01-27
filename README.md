@@ -7,13 +7,14 @@ structure and files. The actual file's data is not re-created - we truncate
 files to original size and set permissions and attributes ) 
 
 ```
-Usage: dir_layout [--help|[[--scan <path>]|[--restore <path>][--file <path>][--compress][--verbose][--progress]]]
+Usage: dir_layout [--help | [ [--scan <path>] | [--restore <path> ] [--file <path>] [--compress] [--verbose] [--progress] [--anonymize]]
 Allowed options:
   --help                produce help message
   --scan arg            scans directory <arg> for it's layout/contents
   --compress            gzip/compress scan output file
   --verbose             noisy output
   --progress            report some stats
+  --anonymize           anonymize dir/file names
   --file arg            input/output file for dir layout
   --restore arg         restore layout under specified directory
 
