@@ -1,8 +1,11 @@
-### What is it
-This is the tool which re-creates directory/file structure for testing 
+# [dir_layout](https://github.com/shvechkov/dir_layout)
+
+
+### TLDR;
+The tool re-creates directory/file structure for testing 
 purposes. It recursevely scans dir/file structure(layout) and saves into 
-intermediate file (can be compressed). Then it allows to restore same layout
-on another env for testing purposes ( i.e. re-creates same directory 
+intermediate file (optionally compressed). Then you can restore  same layout
+on another env for testing purposes ( i.e. re-create same directory 
 structure and files. The actual file's data is not re-created - we truncate 
 files to original size and set permissions and attributes ) 
 
@@ -45,3 +48,5 @@ boost with zlib enabled. E.g:
 If needed, adjust path to boost includes and libs in dir_layout VS project 
 (created in VS2022)
 
+### TBD 
+Start using vcpkg on Windows for managing external dependencies/libs.
